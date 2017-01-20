@@ -5,14 +5,17 @@
 
 all: myprog
 
-myprog: main.o function.o
-	gcc -o myprog main.o function.o
+myprog: main.o function.o file.o
+	gcc -o myprog main.o function.o file.o
 
 
-function.o: function.h function.c 
+function.o: function.h function.c file.h
 	gcc -o function.o -c function.c -W -Wall -ansi -pedantic -std=c99
 
-main.o: main.c function.h
+file.o: file.h file.c 
+	gcc -o file.o -c file.c -W -Wall -ansi -pedantic -std=c99
+
+main.o: main.c function.h file.h
 	gcc -o main.o -c main.c -W -Wall -ansi -pedantic -std=c99
 
 clean:

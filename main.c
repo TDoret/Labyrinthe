@@ -9,7 +9,7 @@
 int main()
 {
 	printf("%s","Hello World !");
-
+	generateMaze(12,12);
 	
     return EXIT_SUCCESS;
 }

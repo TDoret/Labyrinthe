@@ -8,8 +8,9 @@
 
 int main()
 {
-	printf("%s","Hello World !");
-	generateMaze(12,12);
+	printf("%s\n","Hello World !");
+	generateMaze(3,4);
+	printf("\n%s\n","Fin Programme");
 	
     return EXIT_SUCCESS;
 }

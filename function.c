@@ -20,6 +20,14 @@
 i = ligne
 j = colonne*/
 
+void SetCursorPos(int YPos, int XPos)
+{
+ 	printf("\033[%d;%dH", YPos+1, XPos+1);
+ 	//printf("%c[%d;%df",0x1B,YPos,XPos);
+}
+
+
+
 void generateMaze(int M, int N)
 {
 	int tabV[M][N];
@@ -32,10 +40,12 @@ void generateMaze(int M, int N)
 	int cpt = 0;
 	int nbCases = M*N;
 	File *maFile = initialiser();
+
 	Coord coordTemp;
 
+		tabV[i][j] = 1;
+
 		while (cpt  <= nbCases) {
-			tabV[i][j] = 1;
 			//todo tant que inférieur à nb cases (M*N)
 			//on checke qu'il puisse aller dans une direction random
 			int isValidDirect = 0;
@@ -49,6 +59,9 @@ void generateMaze(int M, int N)
 				//si toutes les directions ne sont pas bonnes, on retourne au dernier noeud
 				if(isValidUp == -1 && isValidRight == -1 && isValidDown == -1 && isValidLeft == -1)
 				{
+					coordTemp = defiler(maFile);
+					i = coordTemp.x;
+					j = coordTemp.y;
 					break;
 				}
 				dir = (rand() % 4) + 1;
@@ -166,6 +179,29 @@ void generateMaze(int M, int N)
 					default:
 						break;
 				}
+			}
+		}
+
+		int a,b;
+		printf("%s\n", "Display Maze ?");
+		system("clear");
+
+		for(a=0;a<M-1;a++)
+		{
+			for(b=0;b<N;b++)
+			{
+				SetCursorPos(a,b);
+				printf("%c", '|');
+
+			}
+		}
+		for(a=0;a<M;a++)
+		{
+			for(b=0;b<N-1;b++)
+			{
+				SetCursorPos(a,b);
+				printf("%c", '_');
+
 			}
 		}
 		

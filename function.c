@@ -68,7 +68,7 @@ void generateMaze(int M, int N)
 	int j = (rand() % N);
 	int cpt = 0;
 	int nbCases = M*N;
-    Pile *maPile = initialiser();
+    	Pile *maPile = initialiser();
 	Coord coordTemp;
 	printf("%d:%d\n",i,j);
 	tabV[i][j] = 1;
@@ -218,6 +218,7 @@ void generateMaze(int M, int N)
 			printf("------Fin de l'etape : %d--------\n", cpt);
 		}
 	}
+	tabV[i][j] = 1;
 	printf("%s\n", "Display Maze ?");
 	//system("clear");
 	printf("%s\n", "--TabV--");

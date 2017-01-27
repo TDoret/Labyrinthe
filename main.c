@@ -12,8 +12,8 @@ int main(int argc, char *argv[])
   	int shm;                  			// identifiant de la memoire partagee
   	int *adjM = NULL;      				// pointeur d'attachement shared memory == matrice d'adjacence
   	int value = 1;
-  	int rowMax = 3;
-  	int ColMax = 3;
+  	int rowMax = 10;
+  	int ColMax = 10;
 
 	printf("%s\n","Hello World !");
 	/*shm = generateSHM(argc, argv[0], argv[1]);

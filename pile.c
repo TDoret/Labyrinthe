@@ -6,6 +6,7 @@ Pile *initialiser()
 {
     Pile *pile = malloc(sizeof(*pile));
     pile->premier = NULL;
+    return pile;
 }
 
 void empiler(Pile *pile, Coord coord)

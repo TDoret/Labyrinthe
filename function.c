@@ -73,7 +73,7 @@ void generateMaze(int M, int N)
 	printf("%d:%d\n",i,j);
 	tabV[i][j] = 1;
 	printf("nb Cases: %d\n",nbCases);
-	while (cpt  < nbCases) {
+	while (cpt  < nbCases-1) {
 		//todo tant que inférieur à nb cases (M*N)
 		//on checke qu'il puisse aller dans une direction random
 		isValidDirect = 0;
@@ -87,6 +87,7 @@ void generateMaze(int M, int N)
 			//si toutes les directions ne sont pas bonnes, on retourne au dernier noeud
 			printf("je commence le do\n");
 			printf("position de V=>%d:%d\n",i,j);
+			tabV[i][j] = 1;
 			printf("^:%d/>:%d/v:%d/<:%d \n",isValidUp,isValidRight,isValidDown,isValidLeft);
 			if((isValidUp == -1) && (isValidRight == -1) && (isValidDown == -1) && (isValidLeft == -1) )
 			{
@@ -164,8 +165,7 @@ void generateMaze(int M, int N)
 				default: 
 					break;
 			}
-		}while(isValidDirect == 0);
-		tabV[i][j] = 1;
+		}while(isValidDirect == 0);		
 		//si on est sorti, peut casser le mur
 		if (isValidDirect == 1) {
 			switch (dir) {
@@ -175,9 +175,9 @@ void generateMaze(int M, int N)
 					//on stocke la position courante
 					coordTemp.x = i;
 					coordTemp.y = j;
-					empiler(maPile, coordTemp);
+					empiler(maPile, coordTemp);					
 					//on se déplace
-					i--;
+					i--;					
 					//on incrémente le compteur
 					cpt ++;
 					printf("je monte !\n");
@@ -186,7 +186,7 @@ void generateMaze(int M, int N)
 					tabY[i][j+1] = 1;
 					coordTemp.x = i;
 					coordTemp.y = j;
-					empiler(maPile, coordTemp);
+					empiler(maPile, coordTemp);					
 					j++;
 					//on incrémente le compteur
 					cpt ++;
@@ -206,7 +206,7 @@ void generateMaze(int M, int N)
 					tabY[i][j] = 1;
 					coordTemp.x = i;
 					coordTemp.y = j;
-					empiler(maPile, coordTemp);
+					empiler(maPile, coordTemp);					
 					j--;
 					//on incrémente le compteur
 					cpt ++;

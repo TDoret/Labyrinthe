@@ -34,7 +34,7 @@ void generateMaze(int M, int N)
 	int tabV[M][N];
 	int tabX[M+1][N];
 	int tabY[M][N+1]; 
-	int matAdj[M][N];
+	//int matAdj[M][N];
 	int a,b;
 
 	int isValidDirect = 0;
@@ -88,18 +88,17 @@ void generateMaze(int M, int N)
 			printf("je commence le do\n");
 			printf("position de V=>%d:%d\n",i,j);
 			printf("^:%d/>:%d/v:%d/<:%d \n",isValidUp,isValidRight,isValidDown,isValidLeft);
-			if(isValidUp == -1 && isValidRight == -1 && isValidDown == -1 && isValidLeft == -1 )
+			if((isValidUp == -1) && (isValidRight == -1) && (isValidDown == -1) && (isValidLeft == -1) )
 			{
 				printf("%s\n","Aucune direction Possible !");
-				exit(0);
-				/*coordTemp = depiler(maPile);
+				coordTemp = depiler(maPile);
 				i = coordTemp.x;
 				j = coordTemp.y;
 				isValidUp = 0;
 				isValidRight = 0;
 				isValidDown = 0;
 				isValidLeft = 0;
-				printf("Je remonte le noeud=> %d:%d\n", i,j);*/
+				printf("Je remonte le noeud=> %d:%d\n", i,j);
 				break;
 			}
 			printf("%s\n","Choix direction");

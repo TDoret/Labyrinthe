@@ -3,7 +3,8 @@
 *.ko
 *.obj
 *.elf
-./idea
+.idea/
+cmake-build-debug/
 
 # Precompiled Headers
 *.gch

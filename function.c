@@ -14,7 +14,8 @@
 
 
 
-/*1-	Haut 
+/*
+1-	Haut
 2-	Droite
 3-	Bas
 4-	Gauche

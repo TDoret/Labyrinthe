@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
+#include <sys/shm.h>
 
 #include <unistd.h>
 #include <sys/types.h>
@@ -9,6 +10,7 @@
 #include "file.h"
 
 
+#define LG_CHAINE 256
 
 
 
@@ -206,6 +208,64 @@ void generateMaze(int M, int N)
 		}
 		
 }
+
+int generateSHM(int argc, char *argv0,  char *argv1)
+{
+	key_t key;                // cle d'accès à la structure IPC
+  	int shm; 				// identifiant de la memoire partagee
+
+  	if (argc != 2) {
+    	fprintf(stderr, "Syntaxe : %s fichier_clé \n", argv0);
+    	exit(EXIT_FAILURE);
+  	}
+
+    // generation de la cle
+    if ((key = ftok(argv1, 0)) == -1) {
+      perror("ftok");
+      exit(EXIT_FAILURE);
+    }
+
+    // creation du segment de memoire partagee
+    if ((shm = shmget(key, LG_CHAINE, IPC_CREAT | 0600)) == -1) {
+      perror("shmget");
+      exit(EXIT_FAILURE);
+    }
+    printf("Generate SHM id: %d\n", shm);
+    return shm;
+
+}
+
+void writeSHM(int shm, int * chaine, int value, int row, int column, int rowMax)
+{
+	// attachement du segment shm sur le pointeur *chaine
+    if ((chaine = shmat(shm, NULL, 0)) == (void *)-1) {
+      perror("shmat");
+      exit(EXIT_FAILURE);
+    }
+
+    chaine[row * rowMax + column] = value;
+    //fprintf(stdout, "> ");
+    //fget(value, sizeof(int), stdin);
+}
+
+void readSHM(int shm, int * chaine, int row, int column, int rowMax)
+{
+    // attachement de la memoire partagee au pointeur *chaine
+    if ((chaine = shmat(shm, NULL, SHM_RDONLY)) == (void *)-1) {
+    	perror("shmat");
+    	exit(EXIT_FAILURE);
+    }
+
+    printf("%d\n", chaine[row * rowMax + column]);
+
+}
+
+void destroySHM(int shm)
+{
+	printf("Destroy SHM id: %d\n", shm);
+	shmctl(shm, IPC_RMID, NULL);
+}
+
 
 
 

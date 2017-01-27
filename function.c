@@ -7,7 +7,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include "function.h"
-#include "file.h"
+#include "pile.h"
 
 
 #define LG_CHAINE 256
@@ -23,7 +23,7 @@ j = colonne*/
 
 void SetCursorPos(int YPos, int XPos)
 {
- 	//printf("[%d;%d]", YPos+1, XPos+1);
+ 	printf("[%d;%d]", YPos+1, XPos+1);
  	//printf("%c[%d;%d]", 0x1B, YPos, XPos);
 }
 
@@ -31,58 +31,79 @@ void SetCursorPos(int YPos, int XPos)
 void generateMaze(int M, int N)
 {
 	int tabV[M][N];
-	int tabX[M][N+1];
-	int tabY[M+1][N]; 
+	int tabX[M+1][N];
+	int tabY[M][N+1]; 
 	int matAdj[M][N];
+	int a,b;
 
-	for(int a = 0; a < M; a++) {
-		for(int b = 0; b < N; b++) {
+	int isValidDirect = 0;
+	int isValidUp = 0;
+	int isValidRight = 0;
+	int isValidDown = 0;
+	int isValidLeft = 0;	
+	int dir = 0;
+
+
+	for(a = 0; a < M; a++) {
+		for(b = 0; b < N; b++) {
 			tabV[a][b] = 0;
 		}
 	}
 
-	for(int a = 0; a < M; a++) {
-		for(int b = 0; b < N+1; b++) {
+	for(a = 0; a < M+1; a++) {
+		for(int b = 0; b < N; b++) {
 			tabX[a][b] = 0;
 		}
 	}
 
-	for(int a = 0; a < M+1; a++) {
-		for(int b = 0; b < N; b++) {
+	for(a = 0; a < M; a++) {
+		for(b = 0; b < N+1; b++) {
 			tabY[a][b] = 0;
 		}
 	}
 
 	srand(time(NULL));
-	int i = rand() % M-1;
-	int j = rand() % N-1;
+	int i = (rand() % M);
+	int j = (rand() % N);
 	int cpt = 0;
 	int nbCases = M*N;
-	File *maFile = initialiser();
+    Pile *maPile = initialiser();
 	Coord coordTemp;
+	printf("%d:%d\n",i,j);
 	tabV[i][j] = 1;
-	while (cpt  <= nbCases) {
+	printf("nb Cases: %d\n",nbCases);
+	while (cpt  < nbCases) {
 		//todo tant que inférieur à nb cases (M*N)
 		//on checke qu'il puisse aller dans une direction random
-		int isValidDirect = 0;
-		int isValidUp = 0;
-		int isValidRight = 0;
-		int isValidDown = 0;
-		int isValidLeft = 0;	
-		int dir = 0;
+		isValidDirect = 0;
+		isValidUp = 0;
+		isValidRight = 0;
+		isValidDown = 0;
+		isValidLeft = 0;	
+		dir = 0;
 		//tant que la direction n'est pas bonne
 		do {
 			//si toutes les directions ne sont pas bonnes, on retourne au dernier noeud
 			printf("je commence le do\n");
-			if(isValidUp == -1 && isValidRight == -1 && isValidDown == -1 && isValidLeft == -1)
+			printf("position de V=>%d:%d\n",i,j);
+			printf("^:%d/>:%d/v:%d/<:%d \n",isValidUp,isValidRight,isValidDown,isValidLeft);
+			if(isValidUp == -1 && isValidRight == -1 && isValidDown == -1 && isValidLeft == -1 )
 			{
-				coordTemp = defiler(maFile);
+				printf("%s\n","Aucune direction Possible !");
+				exit(0);
+				/*coordTemp = depiler(maPile);
 				i = coordTemp.x;
 				j = coordTemp.y;
+				isValidUp = 0;
+				isValidRight = 0;
+				isValidDown = 0;
+				isValidLeft = 0;
+				printf("Je remonte le noeud=> %d:%d\n", i,j);*/
 				break;
 			}
+			printf("%s\n","Choix direction");
 			dir = (rand() % 4)+1;
-			printf("dir = %d", dir);
+			printf("dir = %d\n", dir);
 			//checker si c'est pas borné
 			//faire une liste qui stocke les coordonnées courantes avant de se déplacer
 			//on check si on a pas déjà visité la case vers où on veut aller
@@ -102,7 +123,7 @@ void generateMaze(int M, int N)
 						isValidUp = -1;
 					break;
 				case 2: 
-					if(j < N-1) {
+					if(j < M-1) {
 						isValidDirect = 1;
 						printf("petit check oklm\n");
 						if(tabV[i][j+1] != 0)
@@ -144,9 +165,9 @@ void generateMaze(int M, int N)
 					break;
 			}
 		}while(isValidDirect == 0);
+		tabV[i][j] = 1;
 		//si on est sorti, peut casser le mur
 		if (isValidDirect == 1) {
-			printf("je defonce tout !\n");
 			switch (dir) {
 				case 1:
 					//on casse le mur
@@ -154,53 +175,79 @@ void generateMaze(int M, int N)
 					//on stocke la position courante
 					coordTemp.x = i;
 					coordTemp.y = j;
-					enfiler(maFile, coordTemp);
+					empiler(maPile, coordTemp);
 					//on se déplace
-					i++;
+					i--;
 					//on incrémente le compteur
 					cpt ++;
+					printf("je monte !\n");
 					break;
 				case 2:
 					tabY[i][j+1] = 1;
 					coordTemp.x = i;
 					coordTemp.y = j;
-					enfiler(maFile, coordTemp);
+					empiler(maPile, coordTemp);
 					j++;
 					//on incrémente le compteur
 					cpt ++;
+					printf("je vais à droite !\n");
 					break;
 				case 3:
 					tabX[i+1][j] = 1;
 					coordTemp.x = i;
 					coordTemp.y = j;
-					enfiler(maFile, coordTemp);
-					i--;
+					empiler(maPile, coordTemp);
+					i++;
 					//on incrémente le compteur
 					cpt ++;
+					printf("je vais en bas !\n");
 					break;
 				case 4:
 					tabY[i][j] = 1;
 					coordTemp.x = i;
 					coordTemp.y = j;
-					enfiler(maFile, coordTemp);
+					empiler(maPile, coordTemp);
 					j--;
 					//on incrémente le compteur
 					cpt ++;
+					printf("je vais à gauche !\n");
 					break;
 				default:
 					break;
 			}
+			printf("------Fin de l'etape : %d--------\n", cpt);
 		}
 	}
-	int a,b;
 	printf("%s\n", "Display Maze ?");
-	system("clear");
+	//system("clear");
+	printf("%s\n", "--TabV--");
 	for(a=0;a<M;a++)
 	{
-		for(b=0;b<=N;b++)
+		for(b=0;b<N;b++)
 		{
-			printf("%c", '_');	
-			printf("%c", '|');
+			printf("%d", tabV[a][b]);	
+			//printf("%c", '|');
+		}
+		printf("\n");
+	}
+	printf("%s\n", "--TabX--");
+	for(a=0;a<M+1;a++)
+	{
+		for(b=0;b<N;b++)
+		{
+			printf("%d", tabX[a][b]);	
+			//printf("%c", '|');
+		}
+		printf("\n");
+	}
+	printf("%s\n", "--TabY--");
+	//system("clear");
+	for(a=0;a<M;a++)
+	{
+		for(b=0;b<N+1;b++)
+		{
+			printf("%d", tabY[a][b]);	
+			//printf("%c", '|');
 		}
 		printf("\n");
 	}

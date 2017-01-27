@@ -3,7 +3,7 @@
 *.ko
 *.obj
 *.elf
-idea
+./idea
 
 # Precompiled Headers
 *.gch

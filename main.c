@@ -10,19 +10,20 @@
 int main(int argc, char *argv[])
 {
   	int shm;                  			// identifiant de la memoire partagee
-  	int *adjM = NULL;      				// pointeur d'attachement shared memory == matrice d'adjacence
-  	int value = 1;
-  	int rowMax = 10;
-  	int ColMax = 10;
+  	int rowMax = 3;
+  	int ColMax = 3;
 
 	printf("%s\n","Hello World !");
-	/*shm = generateSHM(argc, argv[0], argv[1]);
-	printf("%s\n", "----Write In SHM---");
-	writeSHM(shm, adjM, value, 0, 0, rowMax);
+	shm = generateMatAdj_SHM(argc, argv[0], argv[1]);
+
+	generateMaze(rowMax,ColMax, shm);
+
+	//exemple de lecture dans la SHM
 	printf("%s\n", "----Read In SHM----");
-	readSHM(shm, adjM, 0, 0, rowMax);
-	destroySHM(shm);*/
-	generateMaze(rowMax,ColMax);
+	printf("%d\n",getMatAdj_SHM(shm, 0, 0, rowMax));
+	//sleep(5);
+	destroyMatAdj_SHM(shm);
+
 	printf("\n%s\n","Fin Programme");
 	
     return EXIT_SUCCESS;

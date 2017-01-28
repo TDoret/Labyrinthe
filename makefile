@@ -6,7 +6,7 @@
 all: myprog
 
 myprog: main.o function.o pile.o
-	gcc -o myprog main.o function.o pile.o
+	gcc -o laby main.o function.o pile.o
 
 
 function.o: function.h function.c pile.h
@@ -22,4 +22,4 @@ clean:
 	rm -rf *.o
 
 mrproper: clean
-	rm -rf myprog
+	rm -rf laby

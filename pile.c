@@ -32,6 +32,7 @@ Coord depiler(Pile *pile)
     Coord nombreDepile;
     nombreDepile.x = 0;
     nombreDepile.y = 0;
+    nombreDepile.lastDir = 0;
     Element *elementDepile = pile->premier;
 
     if (pile != NULL && pile->premier != NULL)

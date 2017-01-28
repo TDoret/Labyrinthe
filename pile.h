@@ -6,6 +6,7 @@ struct Coord
 {
 	int x;
 	int y;
+	int lastDir;
 };
 
 typedef struct Element Element;

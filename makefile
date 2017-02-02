@@ -21,5 +21,5 @@ main.o: main.c function.h pile.h
 clean:
 	rm -rf *.o
 
-mrproper: clean
+mrpropre: clean
 	rm -rf laby

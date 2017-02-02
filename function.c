@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <time.h>
 #include <sys/shm.h>
-
 #include <unistd.h>
 #include <sys/types.h>
 #include "function.h"
@@ -11,9 +10,7 @@
 
 
 #define LG_CHAINE 256
-int *adjM = NULL;      				// pointeur d'attachement shared memory == matrice d'adjacence
-
-
+int *adjM = NULL;	// pointeur d'attachement shared memory == matrice d'adjacence
 
 /*
 1-	Haut
@@ -35,7 +32,7 @@ void generateMaze(int M, int N, int shm)
 	//tab pour générer le lab
 	int tabV[M][N];
 	int tabX[M+1][N];
-	int tabY[M][N+1]; 
+	int tabY[M][N+1];
 	int matAdj[M][N];
 	int a,b;
 
@@ -45,7 +42,7 @@ void generateMaze(int M, int N, int shm)
 	int isValidRight = 0;
 	int isValidDown = 0;
 	int isValidLeft = 0;
-	int lastdir = 0;	
+	int lastdir = 0;
 	int dir = 0;
 
 	//struct utile pour stocker le parcours de l'algo
@@ -54,7 +51,7 @@ void generateMaze(int M, int N, int shm)
 	int j = (rand() % N);
 	int cpt = 0;
 	int nbCases = M*N;
-    Pile *maPile = initialiser();
+    	Pile *maPile = initialiser();
 	Coord coordTemp;
 
 	//j'initialise les tabs à 0
@@ -83,11 +80,12 @@ void generateMaze(int M, int N, int shm)
 	}
 
 	/* ----- DEBUT DE LALGO -------*/
-	printf("%s\n", "----Bind matAdj In SHM---");
+	printf("%s\n", "----Bind matAdj dans SHM---");
 	bindMatAdj_SHM(shm);
 
 	printf("%d:%d\n",i,j);
 	tabV[i][j] = 1;
+
 	//nbCase a parcourir pour arriver au bout de l'algo
 	printf("nb Cases: %d\n",nbCases);
 	while (cpt  < nbCases-1) {
@@ -97,8 +95,9 @@ void generateMaze(int M, int N, int shm)
 		isValidUp = 0;
 		isValidRight = 0;
 		isValidDown = 0;
-		isValidLeft = 0;	
+		isValidLeft = 0;
 		dir = 0;
+
 		//tant que la direction n'est pas bonne
 		do {
 			printf("je commence le do\n");
@@ -121,16 +120,16 @@ void generateMaze(int M, int N, int shm)
 				printf("Je remonte le noeud=> %d:%d\n", i,j);
 				break;
 			}
+
 			//on ajoute la direction inversé du predecesseur dans le doute qu'on ne se déplace pas ;)
 			matAdj[i][j] = lastdir;
-			printf("%s\n", "----Write In SHM---");
+			printf("%s\n", "----Ecrire dans SHM---");
 			setMatAdj_SHM(matAdj[i][j], i, j, M);
+
 			//on choisi la direction
 			printf("%s\n","Choix direction");
 			dir = (rand() % 4)+1;
 			printf("dir = %d\n", dir);
-
-			
 
 			//checker si c'est pas borné
 			//faire une liste qui stocke les coordonnées courantes avant de se déplacer
@@ -139,7 +138,7 @@ void generateMaze(int M, int N, int shm)
 			switch(dir) {
 				case 1:
 					if(i > 0) {
-						isValidDirect = 1; 
+						isValidDirect = 1;
 						printf("petit check oklm\n");
 						if(tabV[i-1][j] != 0)
 						{
@@ -150,7 +149,7 @@ void generateMaze(int M, int N, int shm)
 					else
 						isValidUp = -1;
 					break;
-				case 2: 
+				case 2:
 					if(j < M-1) {
 						isValidDirect = 1;
 						printf("petit check oklm\n");
@@ -163,7 +162,7 @@ void generateMaze(int M, int N, int shm)
 					else
 						isValidRight = -1;
 					break;
-				case 3: 
+				case 3:
 					if (i < N-1) {
 						isValidDirect = 1;
 						printf("petit check oklm\n");
@@ -176,7 +175,7 @@ void generateMaze(int M, int N, int shm)
 					else
 						isValidDown = -1;
 					break;
-				case 4: 
+				case 4:
 					if (j > 0) {
 						isValidDirect = 1;
 						printf("petit check oklm\n");
@@ -189,32 +188,38 @@ void generateMaze(int M, int N, int shm)
 					else
 						isValidLeft = -1;
 					break;
-				default: 
+				default:
 					break;
 			}
-		}while(isValidDirect == 0);		
+		}while(isValidDirect == 0);
+
 		//si on est sorti, peut casser le mur
 		if (isValidDirect == 1) {
 			switch (dir) {
 				case 1:
 					//on casse le mur
 					tabX[i][j] = 1;
+
 					//on ajoute la matrice d'adjacence
 					matAdj[i][j] = 1 + matAdj[i][j];
+
 					//inverse de la dir courante
 					lastdir = 4;
+
 					//on stocke la position courante
 					coordTemp.x = i;
 					coordTemp.y = j;
 					coordTemp.lastDir = matAdj[i][j];
-					
-					printf("%s\n", "----Write In SHM---");
+
+					printf("%s\n", "----Ecrire dans SHM---");
 					setMatAdj_SHM(matAdj[i][j], i, j, M);
-					
+
 					printf("adjacence : %d\n",matAdj[i][j]);
-					empiler(maPile, coordTemp);					
+					empiler(maPile, coordTemp);
+
 					//on se déplace
-					i--;					
+					i--;
+
 					//on incrémente le compteur
 					cpt ++;
 					printf("je monte !\n");
@@ -222,18 +227,20 @@ void generateMaze(int M, int N, int shm)
 				case 2:
 					tabY[i][j+1] = 1;
 					matAdj[i][j] = 2 + matAdj[i][j];
+
 					//inverse de la dir courante
 					lastdir = 8;
 					coordTemp.x = i;
 					coordTemp.y = j;
 					coordTemp.lastDir = matAdj[i][j];
-					
-					printf("%s\n", "----Write In SHM---");
+
+					printf("%s\n", "----Ecrire dans SHM---");
 					setMatAdj_SHM(matAdj[i][j], i, j, M);
 
 					printf("adjacence : %d\n",matAdj[i][j]);
-					empiler(maPile, coordTemp);					
+					empiler(maPile, coordTemp);
 					j++;
+
 					//on incrémente le compteur
 					cpt ++;
 					printf("je vais à droite !\n");
@@ -241,18 +248,20 @@ void generateMaze(int M, int N, int shm)
 				case 3:
 					tabX[i+1][j] = 1;
 					matAdj[i][j] = 4 + matAdj[i][j];
+
 					//inverse de la dir courante
 					lastdir = 1;
 					coordTemp.x = i;
 					coordTemp.y = j;
 					coordTemp.lastDir = matAdj[i][j];
 
-					printf("%s\n", "----Write In SHM---");
+					printf("%s\n", "----Ecrire dans SHM---");
 					setMatAdj_SHM(matAdj[i][j], i, j, M);
 
 					printf("adjacence : %d\n",matAdj[i][j]);
 					empiler(maPile, coordTemp);
 					i++;
+
 					//on incrémente le compteur
 					cpt ++;
 					printf("je vais en bas !\n");
@@ -260,18 +269,20 @@ void generateMaze(int M, int N, int shm)
 				case 4:
 					tabY[i][j] = 1;
 					matAdj[i][j] = 8 + matAdj[i][j];
+
 					//inverse de la dir courante
 					lastdir = 2;
 					coordTemp.x = i;
 					coordTemp.y = j;
 					coordTemp.lastDir = matAdj[i][j];
 
-					printf("%s\n", "----Write In SHM---");
+					printf("%s\n", "----Ecrire dans SHM---");
 					setMatAdj_SHM(matAdj[i][j], i, j, M);
 
 					printf("adjacence : %d\n",matAdj[i][j]);
-					empiler(maPile, coordTemp);					
+					empiler(maPile, coordTemp);
 					j--;
+
 					//on incrémente le compteur
 					cpt ++;
 					printf("je vais à gauche !\n");
@@ -282,50 +293,56 @@ void generateMaze(int M, int N, int shm)
 			printf("------Fin de l'etape : %d--------\n", cpt);
 		}
 	}
+
 	//last pos
-	printf("last position de V=>%d:%d\n",i,j);
+	printf("derniere position de V=>%d:%d\n",i,j);
+
 	//je visite la last pos
 	tabV[i][j] = 1;
+
 	//je lui ajoute son adjacence
 	matAdj[i][j] = lastdir;
-	printf("last adjacence: %d\n",matAdj[i][j]);
+	printf("derniere adjacence: %d\n",matAdj[i][j]);
 
 	//On display les matrices pour vérifier le résultat
-	printf("%s\n", "Display Maze ?");
+	printf("%s\n", "Afficher Labyrinthe ?");
 	printf("%s\n", "--TabV--");
 	for(a=0;a<M;a++)
 	{
 		for(b=0;b<N;b++)
 		{
-			printf("%d", tabV[a][b]);	
+			printf("%d", tabV[a][b]);
 		}
 		printf("\n");
 	}
+
 	printf("%s\n", "--TabX--");
 	for(a=0;a<M+1;a++)
 	{
 		for(b=0;b<N;b++)
 		{
-			printf("%d", tabX[a][b]);	
+			printf("%d", tabX[a][b]);
 		}
 		printf("\n");
 	}
+
 	printf("%s\n", "--TabY--");
 	//system("clear");
 	for(a=0;a<M;a++)
 	{
 		for(b=0;b<N+1;b++)
 		{
-			printf("%d", tabY[a][b]);	
+			printf("%d", tabY[a][b]);
 		}
 		printf("\n");
 	}
+
 	printf("%s\n", "--MatAdj--");
 	for(a=0;a<M;a++)
 	{
 		for(b=0;b<N;b++)
 		{
-			printf("%d |", matAdj[a][b]);	
+			printf("%d |", matAdj[a][b]);
 		}
 		printf("\n");
 	}
@@ -333,61 +350,60 @@ void generateMaze(int M, int N, int shm)
 
 int generateMatAdj_SHM(int argc, char *argv0,  char *argv1)
 {
-	key_t key;                // cle d'accès à la structure IPC
-  	int shm; 				// identifiant de la memoire partagee
+	key_t key;              // cle d'accès à la structure IPC
+  	int shm; 		// identifiant de la memoire partagee
 
-  	if (argc != 2) {
-    	fprintf(stderr, "Syntaxe : %s fichier_clé \n", argv0);
-    	exit(EXIT_FAILURE);
+	if (argc != 2) {
+    		fprintf(stderr, "Syntaxe : %s fichier_clé \n", argv0);
+    		exit(EXIT_FAILURE);
   	}
 
-    // generation de la cle
-    if ((key = ftok(argv1, 0)) == -1) {
-      perror("ftok");
-      exit(EXIT_FAILURE);
-    }
+    	// generation de la cle
+    	if ((key = ftok(argv1, 0)) == -1) {
+      		perror("ftok");
+      		exit(EXIT_FAILURE);
+    	}
 
-    // creation du segment de memoire partagee
-    if ((shm = shmget(key, LG_CHAINE, IPC_CREAT | 0600)) == -1) {
-      perror("shmget");
-      exit(EXIT_FAILURE);
-    }
-    printf("Generate SHM id: %d\n", shm);
-    return shm;
-
+    	// creation du segment de memoire partagee
+    	if ((shm = shmget(key, LG_CHAINE, IPC_CREAT | 0600)) == -1) {
+      		perror("shmget");
+      		exit(EXIT_FAILURE);
+    	}
+    	printf("Genere SHM id: %d\n", shm);
+    	return shm;
 }
 
 void bindMatAdj_SHM(int shm)
 {
 	// attachement du segment shm sur le pointeur *chaine
-    if ((adjM = shmat(shm, NULL, 0)) == (void *)-1) {
-      perror("shmat");
-      exit(EXIT_FAILURE);
-    }
+    	if ((adjM = shmat(shm, NULL, 0)) == (void *)-1) {
+      		perror("shmat");
+      		exit(EXIT_FAILURE);
+    	}
 }
 
 void setMatAdj_SHM(int value, int row, int column, int rowMax)
 {
-    adjM[row * rowMax + column] = value;
-    //fprintf(stdout, "> ");
-    //fget(value, sizeof(int), stdin);
+    	adjM[row * rowMax + column] = value;
+	//fprintf(stdout, "> ");
+	//fget(value, sizeof(int), stdin);
 }
 
 int getMatAdj_SHM(int shm, int row, int column, int rowMax)
 {
-    // attachement de la memoire partagee au pointeur *chaine
-    if ((adjM = shmat(shm, NULL, SHM_RDONLY)) == (void *)-1) {
-    	perror("shmat");
-    	exit(EXIT_FAILURE);
-    }
+    	// attachement de la memoire partagee au pointeur *chaine
+    	if ((adjM = shmat(shm, NULL, SHM_RDONLY)) == (void *)-1) {
+    		perror("shmat");
+    		exit(EXIT_FAILURE);
+    	}
 
-    printf("returned value: %d\n", adjM[row * rowMax + column]);
-    return adjM[row * rowMax + column];
+    	printf("valeur retournee: %d\n", adjM[row * rowMax + column]);
+    	return adjM[row * rowMax + column];
 }
 
 void destroyMatAdj_SHM(int shm)
 {
-	printf("Destroy SHM id: %d\n", shm);
+	printf("Destruction SHM id: %d\n", shm);
 	shmctl(shm, IPC_RMID, NULL);
 }
 

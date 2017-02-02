@@ -12,14 +12,14 @@ struct Coord
 typedef struct Element Element;
 struct Element
 {
-    Coord coord;
-    Element *suivant;
+	Coord coord;
+	Element *suivant;
 };
 
 typedef struct Pile Pile;
 struct Pile
 {
-    Element *premier;
+	Element *premier;
 };
 
 Pile *initialiser();

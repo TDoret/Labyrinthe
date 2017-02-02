@@ -12,5 +12,4 @@ int getMatAdj_SHM(int shm, int row, int column, int rowMax);
 void bindIntTabInSHM(int shm);
 void destroyMatAdj_SHM(int shm);
 
-
 #endif /* FUNCTION_H_INCLUDED */

@@ -6,7 +6,7 @@ void SetCursorPos(int YPos, int XPos);
 
 void generateMaze(int M, int N, int shm);
 
-int generateMatAdj_SHM(int argc, char *argv0, char *argv1);
+int generateMatAdj_SHM(/*int argc, char *argv0, char *argv1*/);
 
 void bindMatAdj_SHM(int shm);
 

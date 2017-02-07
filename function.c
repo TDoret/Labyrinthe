@@ -133,7 +133,7 @@ void generateMaze(int M, int N, int shm) {
             rand: dir = dirTab[rand() % 4];
             if(dir == -1)
             	goto rand;
-            
+
             printf("%s\n", "Choix direction");
             printf("dir = %d\n", dir);
 
@@ -342,20 +342,21 @@ void generateMaze(int M, int N, int shm) {
     }
 }
 
-int generateMatAdj_SHM(int argc, char *argv0, char *argv1) {
+int generateMatAdj_SHM(/*int argc, char *argv0, char *argv1*/) {
     key_t key;              // cle d'accès à la structure IPC
     int shm;        // identifiant de la memoire partagee
 
-    if (argc != 2) {
+    /*if (argc != 2) {
         fprintf(stderr, "Syntaxe : %s fichier_clé \n", argv0);
         exit(EXIT_FAILURE);
-    }
+    }*/
 
     // generation de la cle
-    if ((key = ftok(argv1, 0)) == -1) {
+    key = 5678;
+    /*if ((key = ftok(argv1, 0)) == -1) {
         perror("ftok");
         exit(EXIT_FAILURE);
-    }
+    }*/
 
     // creation du segment de memoire partagee
     if ((shm = shmget(key, LG_CHAINE, IPC_CREAT | 0600)) == -1) {

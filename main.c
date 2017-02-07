@@ -7,13 +7,13 @@
 #include <sys/wait.h> 
 #include "function.h"
 
-int main(int argc, char *argv[]) {
+int main() {
     int shm;            // identifiant de la memoire partagee
     int ligMax = 3;
     int colMax = 3;
 
     printf("%s\n", "Début Programme");
-    shm = generateMatAdj_SHM(argc, argv[0], argv[1]);
+    shm = generateMatAdj_SHM();
 
     generateMaze(ligMax, colMax, shm);
 

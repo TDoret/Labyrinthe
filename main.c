@@ -4,6 +4,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/wait.h> 
 #include "function.h"
 
 int main(int argc, char *argv[]) {
@@ -17,11 +18,12 @@ int main(int argc, char *argv[]) {
     generateMaze(ligMax, colMax, shm);
 
     //exemple de lecture dans la SHM
-    printf("%s\n", "----Lecture dans SHM----");
-    printf("%d\n", getMatAdj_SHM(shm, 0, 0, ligMax));
-    //sleep(5);
-    destroyMatAdj_SHM(shm);
+    //printf("%s\n", "----Lecture dans SHM----");
+    //printf("%d\n", getMatAdj_SHM(shm, 0, 0, ligMax));
 
+	printf("Press Any Key to close maze\n");
+	getchar();
+    destroyMatAdj_SHM(shm);
     printf("\n%s\n", "Fin Programme");
 
     return EXIT_SUCCESS;

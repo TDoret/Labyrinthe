@@ -33,6 +33,7 @@ void generateMaze(int M, int N, int shm) {
     int tabY[M][N + 1];
     int matAdj[M][N];
     int a, b;
+    int dirTab[4];
 
     //flag pour le check des directions;
     int isValidDirect = 0;
@@ -95,6 +96,11 @@ void generateMaze(int M, int N, int shm) {
         isValidDown = 0;
         isValidLeft = 0;
         dir = 0;
+		dirTab[0] = 1;
+		dirTab[1] = 2;
+		dirTab[2] = 3;
+		dirTab[3] = 4;
+
 
         //tant que la direction n'est pas bonne
         do {
@@ -120,12 +126,15 @@ void generateMaze(int M, int N, int shm) {
 
             //on ajoute la direction inversé du predecesseur dans le doute qu'on ne se déplace pas ;)
             matAdj[i][j] = lastdir;
-            printf("%s\n", "----Ecrire dans SHM---");
+            //printf("%s\n", "----Ecrire dans SHM---");
             setMatAdj_SHM(matAdj[i][j], i, j, M);
 
             //on choisi la direction
+            rand: dir = dirTab[rand() % 4];
+            if(dir == -1)
+            	goto rand;
+            
             printf("%s\n", "Choix direction");
-            dir = (rand() % 4) + 1;
             printf("dir = %d\n", dir);
 
             //checker si c'est pas borné
@@ -140,6 +149,7 @@ void generateMaze(int M, int N, int shm) {
                         if (tabV[i - 1][j] != 0) {
                             isValidDirect = 0;
                             isValidUp = -1;
+                            dirTab[0] = -1;
                         }
                     } else
                         isValidUp = -1;
@@ -151,6 +161,7 @@ void generateMaze(int M, int N, int shm) {
                         if (tabV[i][j + 1] != 0) {
                             isValidDirect = 0;
                             isValidRight = -1;
+                            dirTab[1] = -1;
                         }
                     } else
                         isValidRight = -1;
@@ -162,6 +173,7 @@ void generateMaze(int M, int N, int shm) {
                         if (tabV[i + 1][j] != 0) {
                             isValidDirect = 0;
                             isValidDown = -1;
+                            dirTab[2] = -1;
                         }
                     } else
                         isValidDown = -1;
@@ -173,6 +185,7 @@ void generateMaze(int M, int N, int shm) {
                         if (tabV[i][j - 1] != 0) {
                             isValidDirect = 0;
                             isValidLeft = -1;
+                            dirTab[3] = -1;
                         }
                     } else
                         isValidLeft = -1;

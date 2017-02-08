@@ -6,8 +6,8 @@
 union semun {
   int val;
   struct semid_ds *buf;
-  ushort *array;
-  //unsigned short int *table;
+  //ushort *array;
+  unsigned short int *array;
 };
 #endif
 

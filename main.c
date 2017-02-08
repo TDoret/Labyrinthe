@@ -9,17 +9,19 @@
 
 int main() {
     int shm;            // identifiant de la memoire partagee
-    int ligMax = 3;
-    int colMax = 3;
+    int sem;               // identifiant du semaphore
+    int ligMax = 10;
+    int colMax = 10;
+    key_t key;              // cle d'accès à la structure IPC
+
+    // generation de la cle
+    key = 5678;
 
     printf("%s\n", "Début Programme");
-    shm = generateMatAdj_SHM();
+    shm = generateMatAdj_SHM(key);
+    sem = generateSem(key);
 
-    generateMaze(ligMax, colMax, shm);
-
-    //exemple de lecture dans la SHM
-    //printf("%s\n", "----Lecture dans SHM----");
-    //printf("%d\n", getMatAdj_SHM(shm, 0, 0, ligMax));
+    generateMaze(ligMax, colMax, sem);
 
 	printf("Press Any Key to close maze\n");
 	getchar();

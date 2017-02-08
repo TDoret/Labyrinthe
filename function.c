@@ -2,14 +2,17 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
-#include <sys/shm.h>
 #include <unistd.h>
+#include <sys/ipc.h>
+#include <sys/sem.h>
+#include <sys/shm.h>
 #include <sys/types.h>
 #include "function.h"
 #include "pile.h"
 
 
-#define LG_CHAINE 256
+#define LG_CHAINE 1024
+
 int *adjM = NULL;    // pointeur d'attachement shared memory == matrice d'adjacence
 
 /*
@@ -26,7 +29,7 @@ void SetCursorPos(int YPos, int XPos) {
 }
 
 
-void generateMaze(int M, int N, int shm) {
+void generateMaze(int M, int N, int sem) {
     //tab pour générer le lab
     int tabV[M][N];
     int tabX[M + 1][N];
@@ -79,8 +82,6 @@ void generateMaze(int M, int N, int shm) {
     }
 
     /* ----- DEBUT DE L'ALGO -------*/
-    printf("%s\n", "----Bind matAdj dans SHM---");
-    bindMatAdj_SHM(shm);
 
     printf("%d:%d\n", i, j);
     tabV[i][j] = 1;
@@ -127,7 +128,7 @@ void generateMaze(int M, int N, int shm) {
             //on ajoute la direction inversé du predecesseur dans le doute qu'on ne se déplace pas ;)
             matAdj[i][j] = lastdir;
             //printf("%s\n", "----Ecrire dans SHM---");
-            setMatAdj_SHM(matAdj[i][j], i, j, M);
+            setMatAdj_SHM(sem, matAdj[i][j], i, j, M);
 
             //on choisi la direction
             rand: dir = dirTab[rand() % 4];
@@ -214,7 +215,7 @@ void generateMaze(int M, int N, int shm) {
                     coordTemp.lastDir = matAdj[i][j];
 
                     printf("%s\n", "----Ecrire dans SHM---");
-                    setMatAdj_SHM(matAdj[i][j], i, j, M);
+                    setMatAdj_SHM(sem, matAdj[i][j], i, j, M);
 
                     printf("adjacence : %d\n", matAdj[i][j]);
                     empiler(maPile, coordTemp);
@@ -237,7 +238,7 @@ void generateMaze(int M, int N, int shm) {
                     coordTemp.lastDir = matAdj[i][j];
 
                     printf("%s\n", "----Ecrire dans SHM---");
-                    setMatAdj_SHM(matAdj[i][j], i, j, M);
+                    setMatAdj_SHM(sem, matAdj[i][j], i, j, M);
 
                     printf("adjacence : %d\n", matAdj[i][j]);
                     empiler(maPile, coordTemp);
@@ -258,7 +259,7 @@ void generateMaze(int M, int N, int shm) {
                     coordTemp.lastDir = matAdj[i][j];
 
                     printf("%s\n", "----Ecrire dans SHM---");
-                    setMatAdj_SHM(matAdj[i][j], i, j, M);
+                    setMatAdj_SHM(sem, matAdj[i][j], i, j, M);
 
                     printf("adjacence : %d\n", matAdj[i][j]);
                     empiler(maPile, coordTemp);
@@ -279,7 +280,7 @@ void generateMaze(int M, int N, int shm) {
                     coordTemp.lastDir = matAdj[i][j];
 
                     printf("%s\n", "----Ecrire dans SHM---");
-                    setMatAdj_SHM(matAdj[i][j], i, j, M);
+                    setMatAdj_SHM(sem, matAdj[i][j], i, j, M);
 
                     printf("adjacence : %d\n", matAdj[i][j]);
                     empiler(maPile, coordTemp);
@@ -304,6 +305,7 @@ void generateMaze(int M, int N, int shm) {
 
     //je lui ajoute son adjacence
     matAdj[i][j] = lastdir;
+    setMatAdj_SHM(sem, matAdj[i][j], i, j, M);
     printf("derniere adjacence: %d\n", matAdj[i][j]);
 
     //On display les matrices pour vérifier le résultat
@@ -340,23 +342,17 @@ void generateMaze(int M, int N, int shm) {
         }
         printf("\n");
     }
+    printf("%s\n", "----Lecture dans SHM----");
+    for (a = 0; a < M; a++) {
+        for (b = 0; b < N; b++) {
+            printf("%d |", getMatAdj_SHM(a, b, M));
+        }
+        printf("\n");
+    }
 }
 
-int generateMatAdj_SHM(/*int argc, char *argv0, char *argv1*/) {
-    key_t key;              // cle d'accès à la structure IPC
+int generateMatAdj_SHM(key_t key) {
     int shm;        // identifiant de la memoire partagee
-
-    /*if (argc != 2) {
-        fprintf(stderr, "Syntaxe : %s fichier_clé \n", argv0);
-        exit(EXIT_FAILURE);
-    }*/
-
-    // generation de la cle
-    key = 5678;
-    /*if ((key = ftok(argv1, 0)) == -1) {
-        perror("ftok");
-        exit(EXIT_FAILURE);
-    }*/
 
     // creation du segment de memoire partagee
     if ((shm = shmget(key, LG_CHAINE, IPC_CREAT | 0600)) == -1) {
@@ -364,37 +360,77 @@ int generateMatAdj_SHM(/*int argc, char *argv0, char *argv1*/) {
         exit(EXIT_FAILURE);
     }
     printf("Genere SHM id: %d\n", shm);
-    return shm;
-}
 
-void bindMatAdj_SHM(int shm) {
+    printf("%s\n", "----Bind matAdj dans SHM---");
     // attachement du segment shm sur le pointeur *chaine
     if ((adjM = shmat(shm, NULL, 0)) == (void *) -1) {
         perror("shmat");
         exit(EXIT_FAILURE);
-    }
+    }   
+
+    return shm;
 }
 
-void setMatAdj_SHM(int value, int row, int column, int rowMax) {
+int generateSem(key_t key)
+{
+    int sem;               // identifiant du semaphore
+    union semun u_semun;          // initialisation semaphores
+    unsigned short table[1];  // table de valeur du semaphore
+
+  // acces a l'ensemble semaphore (ensemble de 1 semaphore)
+  if ((sem = semget(key, 1, 0)) == -1) {
+    // creation de l'ensemble qui n'existe pas
+    if ((sem = semget(key, 1, IPC_CREAT | IPC_EXCL | 0600)) == -1) {
+      perror("semget");
+      exit(EXIT_FAILURE);
+    }
+    // initialisation a vide de la chaine en shm
+    adjM[0] = '\0';
+    // initialisation de la table de valeur du compteur
+    table[0] = 1;
+    // initalisation du troisieme membre de l'union
+    u_semun.array = table;
+    // initialisation de la valeur du compteur dansle semaphore
+    if (semctl(sem, 0, SETALL, u_semun) < 0) perror("semctl");
+  }
+
+    printf("Genere Sem id: %d\n", sem);
+    return sem;
+}
+
+void setMatAdj_SHM(int sem ,int value, int row, int column, int rowMax) {
+    //entree en section critique / enfin je crois
+    P(sem);
     adjM[row * rowMax + column] = value;
-    //fprintf(stdout, "> ");
-    //fget(value, sizeof(int), stdin);
+    V(sem);
 }
 
-int getMatAdj_SHM(int shm, int row, int column, int rowMax) {
-    // attachement de la memoire partagee au pointeur *chaine
-    if ((adjM = shmat(shm, NULL, SHM_RDONLY)) == (void *) -1) {
-        perror("shmat");
-        exit(EXIT_FAILURE);
-    }
-
-    printf("valeur retournee: %d\n", adjM[row * rowMax + column]);
+int getMatAdj_SHM(int row, int column, int rowMax) {
+    //printf("valeur retournee: %d\n", adjM[row * rowMax + column]);
     return adjM[row * rowMax + column];
 }
 
 void destroyMatAdj_SHM(int shm) {
     printf("Destruction SHM id: %d\n", shm);
     shmctl(shm, IPC_RMID, NULL);
+}
+
+int P(int semId)
+{
+    struct sembuf buffer;
+    buffer . sem_num = 0;
+    buffer . sem_op = -1;
+    buffer . sem_flg = SEM_UNDO;
+    return (semop (semId, & buffer, 1));
+}
+
+int V(int semId)
+{
+    struct sembuf buffer;
+    buffer . sem_num = 0;
+    buffer . sem_op = 1;
+    buffer . sem_flg = SEM_UNDO;
+    return (semop (semId, & buffer, 1));
 }
 
 

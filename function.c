@@ -55,6 +55,8 @@ void generateMaze(int M, int N, int sem) {
     int nbCases = M * N;
     Pile *maPile = initialiser();
     Coord coordTemp;
+    Coord depart;
+    Coord arrive;
 
     //j'initialise les tabs à 0
     for (a = 0; a < M; a++) {
@@ -84,6 +86,8 @@ void generateMaze(int M, int N, int sem) {
     /* ----- DEBUT DE L'ALGO -------*/
 
     printf("%d:%d\n", i, j);
+    depart.x = i;
+    depart.y = j;
     tabV[i][j] = 1;
 
     //nbCase a parcourir pour arriver au bout de l'algo
@@ -299,7 +303,8 @@ void generateMaze(int M, int N, int sem) {
 
     //last pos
     printf("derniere position de V=>%d:%d\n", i, j);
-
+    arrive.x = i;
+    arrive.y = j;
     //je visite la last pos
     tabV[i][j] = 1;
 
@@ -342,13 +347,26 @@ void generateMaze(int M, int N, int sem) {
         }
         printf("\n");
     }
-    printf("%s\n", "----Lecture dans SHM----");
+    printf("Depart : %d:%d\n", depart.x, depart.y);
+    printf("Arrivee : %d:%d\n", arrive.x, arrive.y);
+    //depart
+    setMatAdj_SHM(sem, depart.x, M+1, N+1, M);
+    setMatAdj_SHM(sem, depart.y, M+2, N+2, M);
+    //arrivee
+    setMatAdj_SHM(sem, arrive.x, M+3, N+3, M);
+    setMatAdj_SHM(sem, arrive.y, M+4, N+4, M);
+    //ligMax
+    setMatAdj_SHM(sem, M, M+5, N+5, M);
+    //colMax
+    setMatAdj_SHM(sem, N, M+6, N+6, M);
+
+    /*printf("%s\n", "----Lecture dans SHM----");
     for (a = 0; a < M; a++) {
         for (b = 0; b < N; b++) {
             printf("%d |", getMatAdj_SHM(a, b, M));
         }
         printf("\n");
-    }
+    }*/
 }
 
 int generateMatAdj_SHM(key_t key) {
